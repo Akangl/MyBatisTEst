@@ -3,9 +3,16 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.java.dao.StudentDao">
+<!--    查询操作-->
     <select id="selectStudent" resultType="com.java.domain.Student">
         select * from student
     </select>
+
+<!--    插入操作-->
+    <insert id="insertStudent">
+--         insert into student values(20004,"周齐","zhouqi@110.com",20);
+        insert into student values(#{id},#{name},#{email},#{age});
+    </insert>
 </mapper>
 
 <!--
@@ -36,5 +43,5 @@
             可以自定义，但要求你使用的接口中方法的名称
       resultType：
             表示结果类型，是sql语句执行后得到ResultSet，遍历这个ResultSet得到的Java对象的类型
-            值写的类型是全限定名称 <com.java.dao.StudentDao>
+            值写的类型是全限定名称 <com.java.domain.Student>
 -->
