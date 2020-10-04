@@ -13,6 +13,94 @@
 --         insert into student values(20004,"周齐","zhouqi@110.com",20);
         insert into student values(#{id},#{name},#{email},#{age});
     </insert>
+
+    <select id="selectStudentById"  resultType="com.java.domain.Student">
+        select * from student where id=#{id}
+    </select>
+
+    <select id="selectStudentByName" resultType="com.java.domain.Student">
+        select * from student where name=#{name}
+    </select>
+
+    <select id="selectStudentByAge" resultType="com.java.domain.Student">
+        select * from student where age >= #{age}
+    </select>
+
+<!--多个参数：使用Param命名-->
+    <select id="selectMulitParam" resultType="com.java.domain.Student">
+        select * from student where name=#{myname} or age=#{myage}
+    </select>
+
+    <select id="selectXhnlParam" resultType="com.java.domain.Student">
+        select * from student where id=#{myid} and age=#{myage}
+    </select>
+
+
+    <select id="selectUseOredr" resultType="com.java.domain.Student">
+        select * from student order by ${colName}
+    </select>
+<!--多个参数：使用Java对象的属性值,作为参数实际值
+        使用对象语法：#{属性名 , javaType=类型名称 , jdbcType=数据类型}很少用
+        javaType:java中的属性数据类型
+        jdbcType:在数据库中的数据类型
+        例如：
+            #{paramName , javaType=java.lang.String , jdbcType=VARCHAR}
+
+       简化方式：
+            #{属性名}
+-->
+<!--    <select id="selectMulitObject" resultType="com.java.domain.Student">-->
+<!--        select * from student where-->
+<!--        name=#{paramName,javaType=java.lang.String,jdbcType=VARCHAR}-->
+<!--        or age=#{paramAge,javaType=java.lang.Integer,jdbcType=Integer}-->
+<!--    </select>-->
+    <select id="selectMulitObject" resultType="com.java.domain.Student">
+        select * from student where name=#{paramName} or age=#{paramAge}
+    </select>
+
+    <select id="selectMulitStudent" resultType="com.java.domain.Student">
+        select * from student where name=#{name} or age=#{age}
+    </select>
+
+<!--    按位置-->
+    <select id="selectByNameAndAge" resultType="com.java.domain.Student">
+        select * from student where name=#{arg0} or age=#{arg1}
+    </select>
+
+<!--    使用Map集合-->
+    <select id="selectMulitMap" resultType="com.java.domain.Student">
+        select * from student where name=#{myname} or age=#{age}
+    </select>
+    <!--
+        parameterType:dao接口中方法参数的数据类型
+        parameterType它的值是Java的数据类型全限定名称或者是mybatis定义的别名
+        例如：
+            parameterType="java.lang.Integer"
+            parameterType="int"
+
+        注意:
+            parameterType不是强制的,mybatis通过反射机制能够发现接口参数的数据类型
+            所以可以没有,可以不写。
+
+            使用#{}之后,mybatis执行sql是使用的JDBC的PerparedStatement对象:
+            由MyBatis执行下面的代码:
+                1.MyBatis创建Connection,PreparedStatement对象
+                    String sql = "select * from student where id = ?";
+                    PreparedStatement pst = connection.preparedStatement(sql);
+                    pst.setInt(1,1001);
+                2.执行sql封装为resultType = "com.java.domain.Student";
+                    ResultSet resultSet = preparedStatement.executeQuery();
+                    Student student = null;
+                    while(resultSet.next()){
+                    //从数据库取表的一行数据,存到一个Java对象属性中
+                        student = new Student();
+                        student.setId(resultSet.getInt("id"));
+                        student.setName(resultSet.getInt("name"));
+                        student.setEmail(resultSet.getInt("email"));
+                        student.setAge(resultSet.getInt("age"));
+                    }
+                    return student;//给了方法调用的返回值
+    -->
 </mapper>
 
 <!--
