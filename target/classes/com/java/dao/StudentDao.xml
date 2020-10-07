@@ -15,7 +15,7 @@
     </insert>
 
     <select id="selectStudentById"  resultType="com.java.domain.Student">
-        select * from student where id=#{id}
+        select id,name,age,email from student where id=#{id}
     </select>
 
     <select id="selectStudentByName" resultType="com.java.domain.Student">
@@ -49,11 +49,11 @@
        简化方式：
             #{属性名}
 -->
-<!--    <select id="selectMulitObject" resultType="com.java.domain.Student">-->
-<!--        select * from student where-->
-<!--        name=#{paramName,javaType=java.lang.String,jdbcType=VARCHAR}-->
-<!--        or age=#{paramAge,javaType=java.lang.Integer,jdbcType=Integer}-->
-<!--    </select>-->
+<!--    <select id="selectMulitObject" resultType="com.java.domain.Student">
+        select * from student where
+        name=#{paramName,javaType=java.lang.String,jdbcType=VARCHAR}
+        or age=#{paramAge,javaType=java.lang.Integer,jdbcType=Integer}
+    </select>-->
     <select id="selectMulitObject" resultType="com.java.domain.Student">
         select * from student where name=#{paramName} or age=#{paramAge}
     </select>
@@ -71,6 +71,194 @@
     <select id="selectMulitMap" resultType="com.java.domain.Student">
         select * from student where name=#{myname} or age=#{age}
     </select>
+
+
+    <select id="selectStudentReturnViewStudent" resultType="ViewStudent">
+        select * from student where id=#{myid}
+    </select>
+
+<!--    sql执行后返回一行一列数据-->
+    <select id="countStudent" resultType="int">
+        select count(*) from student
+    </select>
+
+<!--    使用自定义别名-->
+    
+    <select id="selectByAge" resultType="Student">
+        select * from student where age=#{myage};
+    </select>
+
+<!--返回map
+        1).列名是map的key,列值是map的value
+        2).咋能最多返回一行记录;大于一行会报错
+-->
+<!--    <select id="selectMapById" resultType="java.util.HashMap">-->
+    <select id="selectMapById" resultType="map">
+        select id,name,age from student where id=#{id}
+    </select>
+
+<!--使用resultMap
+        1).先定义resultMap
+            定义resultMap:
+                id:自定义名称,表示你定义的这个resultMap
+                type:Java类型的全限定名称
+        2).在select标签中,使用resultMap来应用1)的定义
+    -->
+    <resultMap id="studentMap" type="com.java.domain.Student">
+<!--        列名和java属性的关系-->
+<!--        主键列,使用id标签
+                column:列名
+                property:Java类型的属性名
+-->
+        <id column="id" property="id"/>
+<!--        非主键列,使用result-->
+        <result column="name" property="email"/>
+        <result column="email" property="name"/>
+        <result column="age" property="age"/>
+    </resultMap>
+    <select id="selectAllStudents" resultMap="studentMap">
+        select * from student
+    </select>
+
+
+<!--    列名和属性名不相同,解决方法一:
+            使用resultMap
+-->
+<!--    <select id="selectMyStudent" resultType="com.java.domain.MyStudent">-->
+<!--        select * from student-->
+<!--    </select>-->
+    <resultMap id="myStudent" type="com.java.domain.MyStudent">
+        <id column="id" property="stuId"/>
+        <result column="name" property="stuName"/>
+        <result column="email" property="stuEmail"/>
+        <result column="age" property="stuAge"/>
+    </resultMap>
+    <select id="selectMyStudent" resultMap="myStudent">
+        select * from student
+    </select>
+
+<!--    列名和属性名不相同,解决方法二:
+            resultType的默认原则是:同名的列值赋值给同名的属性,可以使用列别名(id as stuId)
+-->
+    <select id="selectDiffColProperty" resultType="com.java.domain.MyStudent">
+        select id as stuId,name as stuName,email as stuEmail,age as stuAge from student
+    </select>
+
+
+<!--    模糊查询,第一种方法:
+            使用Java代码指定like的内容
+-->
+    <select id="selectLikeOne" resultType="com.java.domain.Student">
+        select * from student where name like #{name}
+    </select>
+<!--    模糊查询,第二种方式
+             在mapper文件中拼接like的内容
+-->
+    <select id="selectLikeTwo" resultType="com.java.domain.Student">
+        select * from student where name like  #{name} "%"
+    </select>
+
+
+<!--
+    动态sql:
+        1.<if>
+            <if test="使用参数Java对象的属性值作为判断条件,语法: 属性 = xxx值">
+-->
+    <select id="selectStudentIf" resultType="com.java.domain.Student">
+        select * from student
+        where 1=1
+        <if test="name != null and name != ''">
+            and name=#{name}
+        </if>
+        <if test="age > 0">
+            or age > #{age}
+        </if>
+    </select>
+
+    <select id="selectStudentIfTwo" resultType="com.java.domain.Student">
+        select * from student
+        where 1=1
+        <if test="name != null and name != ''">
+            and name like #{name}
+        </if>
+        <if test="age >= 18">
+            and age > #{age}
+        </if>
+    </select>
+
+<!--
+    2.<where>:
+            <where> <if> </if><if> </if> ...... </where>
+-->
+    <select id="selectStudentWhere" resultType="com.java.domain.Student">
+        select * from student
+        <where>
+            <if test="name != null and name != ''">
+                and name like #{name}
+            </if>
+            <if test="age >= 18">
+                and age > #{age}
+            </if>
+        </where>
+    </select>
+
+
+<!--
+    3.<foreach>用法一:
+-->
+    <select id="selectForeachOne" resultType="com.java.domain.Student">
+        select * from student where id in
+        <foreach collection="list" item="myid" open="(" close=")" separator=",">
+            #{myid}
+        </foreach>
+    </select>
+
+<!--
+    3.<foreach>用法二：
+-->
+<!--
+    <select id="selectForeachTwo" resultType="com.java.domain.Student">
+        select * from student where id in
+        <foreach collection="list" item="student" open="(" close=")" separator=",">
+            #{student.id}
+        </foreach>
+    </select>
+    下面是简洁版：
+ -->
+    <select id="selectForeachTwo" resultType="com.java.domain.Student">
+        select * from student where id in (
+        <foreach collection="list" item="student" separator=",">
+            #{student.id}
+        </foreach>
+        )
+    </select>
+
+    <select id="selectForeachTwotwo" resultType="com.java.domain.Student">
+        <include refid="studentSql1"/> where name  in (
+         <foreach collection="list" item="student" separator=",">
+             #{student.name}
+         </foreach>
+        )
+    </select>
+
+
+
+<!--
+    Sql代码片段,复用一些语法
+-->
+<!--    先定义sql片段-->
+    <sql id="studentSql1">
+        select * from student
+    </sql>
+    <select id="selectStudentSqlFragment" resultType="com.java.domain.Student">
+--         使用动态Sql语句
+        <include refid="studentSql1" /> where id in  (
+        <foreach collection="list" item="student" separator=",">
+            #{student.id} ,#{student.name}
+        </foreach>
+        )
+    </select>
+
     <!--
         parameterType:dao接口中方法参数的数据类型
         parameterType它的值是Java的数据类型全限定名称或者是mybatis定义的别名

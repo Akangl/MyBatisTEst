@@ -104,12 +104,125 @@
                 select * from student where id=${id}
                     $的结果：select * from student where id=20003
                 String sql = "select * from student where id=" + "1001";(字符串连接)
-                使用的是Statement对象执行sql,效率比PrepareStatement低。
+                使用的是Statement对象执行sql,效率比PreparedStatement低。
 
-                $:可以替换表名或者列名;不推荐使用
-                区别:
-                    1.#使用?在sql语句中做站位的,使用PreparedStatement执行sql,效率高
-                    2.#能避免sql注入,更安全
-                    3.$不使用占位符,是字符串的连接方式,使用Statement对象执行sql,效率低
-                    4.$由sql注入的风险,缺乏安全性
-                    5.$可以替换表名或者列名
+        $:可以替换表名或者列名;不推荐使用
+        区别:
+            1.#使用?在sql语句中做站位的,使用PreparedStatement执行sql,效率高
+            2.#能避免sql注入,更安全
+            3.$不使用占位符,是字符串的连接方式,使用Statement对象执行sql,效率低
+            4.$由sql注入的风险,缺乏安全性
+            5.$可以替换表名或者列名
+
+    3.mybatis的输出结果
+        mybatis执行了sql语句,得到Java对象
+
+        1).resultType:指sql语句执行完毕后,数据转换为的Java对象,Java类型是任意的。
+           resultType结果类型它的值类型:
+                1.类型的全限定名称;
+                2.类型的别名(java.lang.Integer == int)
+        处理方式:
+            1.mybatis执行sql语句,然后mybatis调用类的无参构造函数,创建对象。
+            2.mybatis把ResultSet指定列值赋给同名的属性。
+
+            <select id="selectStudentById"  resultType="com.java.domain.Student">
+                select * from student where id=#{id}
+            </select>
+
+            对等的JDBC:
+                ResultSet resultSet = executeQuery("select * from student");
+                while(resultSet.next()){
+                    Student student = new Student();
+                    student.setId(resultSet.getInt("id"));
+                    student.setName(resultSet.getString("name"));
+                }
+
+        2)定义自定义类型的别名:
+            1).在mybatis主配置文件中定义,使用<typeAlias>定义别名
+            2).在resultType中使用自定义别名
+
+        3).resultMap:结果映射
+          指定列名和Java对象属性的对应关系
+            1).自定义列值赋值给某个属性
+            2).当你的列名和属性名不一样时,一定要使用resultMap
+
+
+第四章:
+    动态sql:sql的内容是变化的,可以根据条件获取到不同的sql语句
+            主要是where部分发生变化
+
+    动态sql的实现:使用的是mybatis提供的标签,<if>,<where>,<foreach>
+        1).<if>:是判断条件的
+            语法:
+                <if test = "判断Java对象的属性值">
+                    部分sql语句
+                </if>
+
+        2).<where>:包含多个<if>的，当多个<if>有一个成立,<where>会自动增加一个where关键字,会去除<if>多余的and,or等
+
+        3).<foreach>:循环Java中的数组,list集合的。主要用在SQL的in语句中。
+            学生的id 20001,20002,20003的三个学生
+            select * from student id in (20001,20002,20003);
+
+            public List<Student> selectFor(List<Integer> idList);
+
+            List<Integer> list = new ArrayList<>();
+            list.add(20001);
+            list.add(20002);
+            list.add(20003);
+
+            studentDao.selectFor(list);
+
+            语法:<foreach collection="" item="" open="" close="" separator=""> </foreach>
+                collection:表示接口中的方法参数的类型,如果是数组使用array,如果是集合使用list;
+                item:自定义的,表示数组和集合成员的变量;
+                open:循环开始时的字符;
+                close:循环结束时的字符;
+                separator:集合成员之间的分隔符。
+
+        4).代码片段:
+            <sql>标签用于定义SQL片段,以便其他SQL标签重复使用;
+            其他标签使用该SQL片段,需使用<include>子标签;
+            该<sql>标签可以定义SQL语句中的任何部分,所以<include>子标签可以放在动态SQL的任何位置;
+
+            接口方法：
+               List<Student> selectStudentSqlFragment(List<Student> studentList);
+
+            mapper文件:
+                <sql id = "studentSql">//id:片段的自定义名称
+                    重复使用的代码(select * from student)
+                </sql>
+
+                <select id = "" resultType = "">
+                    //引用sql片段
+                    <include refid="studentSql">
+                    ......
+                </select>
+
+第五章:
+    1.数据库的属性配置文件:
+        把数据库连接信息放到一个单独的文件中。和Mybatis主配置文件分开。
+        目的是便于修改，保存，处理多个数据库的信息
+
+        1)在resources目录中定义一个属性配置文件,名字为(xxx.properties),例如：jdbc.properties
+        在属性配置文件中,定义数据,格式是   key = value
+        例如:
+            jdbc.driver=com.mysql.cj.jdbc.Driver
+            jdbc.url=jdbc:mysql://......
+            jdbc.user=root
+            jdbc.passwd=******
+
+        2).在mybatis的主配置文件,使用<properties>指定文件的位置
+            在需要使用值的地方，${key}
+
+    2.mapper文件,使用package指定路径:
+        使用包名
+            name:xml文件(mapper文件)所在的包名,这个包中所有的xml文件一次都能加载给mybatis
+            使用package的要求:
+                1).mapper文件名称需要和接口名称一样,区分大小写的一样
+                2).mapper文件需要和dao接口需要在同一目录
+        <mappers>
+            <package name="com.java.dao"/>
+        </mappers>
+
+第六章:PageHelper

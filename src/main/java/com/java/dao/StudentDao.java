@@ -1,7 +1,9 @@
 package com.java.dao;
 
+import com.java.domain.MyStudent;
 import com.java.domain.Student;
 import com.java.vo.QueryParam;
+import com.java.vo.ViewStudent;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -54,4 +56,64 @@ public interface StudentDao {
     List<Student> selectMulitMap(Map<String,Object> map);
 
     List<Student> selectUseOredr(@Param("colName")String colName);
+
+
+
+    ViewStudent selectStudentReturnViewStudent(@Param("myid")Integer id);
+
+    int countStudent();
+
+    List<Student> selectByAge(@Param("myage")Integer age);
+
+//    定义方法返回Map
+    Map<Object, Object> selectMapById(Integer id);
+
+    /*
+        使用resultMap定义映射关系
+     */
+    List<Student> selectAllStudents();
+
+//    列名和属性名不相同,方法一
+    List<MyStudent> selectMyStudent();
+
+//    方法二
+    List<MyStudent> selectDiffColProperty();
+
+
+//    模糊查询,第一种:通过Java代码指定like的内容
+    List<Student> selectLikeOne(String name);
+
+//    模糊查询,第二种:通过在mapper文件中拼接like的内容
+    List<Student> selectLikeTwo(String name);
+
+
+/*
+    动态sql：
+        1.<if>
+            动态sql使用Java对象作为参数
+ */
+    List<Student> selectStudentIf(Student student);
+
+    List<Student> selectStudentIfTwo(Student student);
+/*
+    2.<where>
+ */
+    List<Student> selectStudentWhere(Student student);
+
+/*
+    3.<foreach>用法一
+ */
+    List<Student> selectForeachOne(List<Integer> idList);
+
+/*
+    3.<foreach>用法二
+ */
+    List<Student> selectForeachTwo(List<Student> studentList);
+
+    List<Student> selectForeachTwotwo(List<Student> studentList);
+
+/*
+    Sql代码片段,复用一些语法
+ */
+    List<Student> selectStudentSqlFragment(List<Student> studentList);
 }
