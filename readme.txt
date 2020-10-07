@@ -206,6 +206,7 @@
 
         1)在resources目录中定义一个属性配置文件,名字为(xxx.properties),例如：jdbc.properties
         在属性配置文件中,定义数据,格式是   key = value
+        key:一般使用多级目录
         例如:
             jdbc.driver=com.mysql.cj.jdbc.Driver
             jdbc.url=jdbc:mysql://......

@@ -259,6 +259,11 @@
         )
     </select>
 
+
+<!--    查询所有,使用PageHelper-->
+    <select id="selectAll" resultType="com.java.domain.Student">
+        select * from student
+    </select>
     <!--
         parameterType:dao接口中方法参数的数据类型
         parameterType它的值是Java的数据类型全限定名称或者是mybatis定义的别名

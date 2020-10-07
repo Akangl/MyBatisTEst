@@ -251,14 +251,20 @@
         select * from student
     </sql>
     <select id="selectStudentSqlFragment" resultType="com.java.domain.Student">
---         使用动态Sql语句
-        <include refid="studentSql1" /> where id in  (
+        -- 使用动态Sql语句
+        <include refid="studentSql1"/>
+        where id in (
         <foreach collection="list" item="student" separator=",">
             #{student.id} ,#{student.name}
         </foreach>
         )
     </select>
 
+
+    <!--    查询所有,使用PageHelper-->
+    <select id="selectAll" resultType="com.java.domain.Student">
+        select * from student
+    </select>
     <!--
         parameterType:dao接口中方法参数的数据类型
         parameterType它的值是Java的数据类型全限定名称或者是mybatis定义的别名

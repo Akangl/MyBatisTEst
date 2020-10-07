@@ -92,28 +92,34 @@ public interface StudentDao {
         1.<if>
             动态sql使用Java对象作为参数
  */
-    List<Student> selectStudentIf(Student student);
+List<Student> selectStudentIf(Student student);
 
     List<Student> selectStudentIfTwo(Student student);
-/*
-    2.<where>
- */
+
+    /*
+        2.<where>
+     */
     List<Student> selectStudentWhere(Student student);
 
-/*
-    3.<foreach>用法一
- */
+    /*
+        3.<foreach>用法一
+     */
     List<Student> selectForeachOne(List<Integer> idList);
 
-/*
-    3.<foreach>用法二
- */
+    /*
+        3.<foreach>用法二
+     */
     List<Student> selectForeachTwo(List<Student> studentList);
 
     List<Student> selectForeachTwotwo(List<Student> studentList);
 
-/*
-    Sql代码片段,复用一些语法
- */
+    /*
+        Sql代码片段,复用一些语法
+     */
     List<Student> selectStudentSqlFragment(List<Student> studentList);
+
+    /*
+        使用PageHelper分页数据
+     */
+    List<Student> selectAll();
 }
